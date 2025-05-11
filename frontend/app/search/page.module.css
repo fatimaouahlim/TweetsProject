@@ -1,0 +1,196 @@
+.container {
+  background: #29aaff;
+  min-height: 100vh;
+  position: relative;
+  padding: 0;
+  font-family: sans-serif;
+  color: white;
+  width: 100%;
+  margin: 0;
+  overflow: hidden;
+}
+
+.leftTabs {
+  width: 300px;
+  padding: 40px;
+  display: flex;
+  flex-direction: column;
+}
+
+.leftTabs h1 {
+  font-size: 2.5rem;
+  margin-bottom: 10px;
+}
+
+
+.navLinks {
+  display: flex;
+}
+
+.navLinks a {
+  margin-left: 30px;
+  color: white;
+  text-decoration: none;
+  font-size: 1rem;
+  font-weight: bold;
+  box-shadow: 0 4px 6px rgb(198, 85, 20);
+}
+
+.centerContent {
+  text-align: center;
+  margin-top: 30px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.searchArea {
+  width: 100%;
+  margin-left: 100px;
+}
+
+.slogan {
+  font-size: 1.2rem;
+  margin-top: 0;
+  margin-bottom: 40px;
+}
+
+.searchTabs {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  margin-bottom: 10px;
+  font-weight: bold;
+  font-size: 1.1rem;
+}
+
+.searchTabs span {
+  cursor: pointer;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.searchTabs span.active {
+  color: white;
+}
+
+.searchContainer {
+  background: white;
+  border-radius: 30px;
+  display: flex;
+  align-items: center;
+  width: 500px;
+  max-width: 90%;
+  margin: 0 auto;
+  padding: 5px 5px 5px 20px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.498);
+}
+
+.tabsContainer {
+  display: flex;
+  justify-content: flex-start;
+  width: 500px;
+  max-width: 90%;
+  margin-bottom: 10px; 
+  margin-left: 110px;
+  margin-right: 10px;
+  margin-top: -30px; /* Space between tabs and search bar */
+}
+
+.pillTabs {
+  display: flex;
+  border-radius: 30px;
+  overflow: hidden;
+  background: #29aaff; /* Same as background to blend in */
+  width: fit-content;
+}
+
+.pillTabs button {
+  padding: 10px 30px;
+  border: none;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: bold;
+  transition: all 0.3s ease;
+  background: transparent;
+  outline: none;
+}
+
+.activeTab {
+  background-color: white !important;
+  color: rgb(0, 21, 50) !important;
+  border-radius: 30px !important;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.002);
+}
+
+.inactiveTab {
+  background-color: transparent !important;
+  color: white !important;
+}
+
+.tabs {
+  display: flex;
+  gap: 20px;
+  font-weight: bold;
+  width: 100%;
+}
+
+.tab {
+  cursor: pointer;
+  color: rgba(255, 255, 255, 0.7);
+  transition: color 0.2s;
+}
+
+.tabs span {
+  cursor: pointer;
+  color: rgba(255, 255, 255, 0.7);
+  transition: color 0.2s;
+}
+
+.active {  /* Combine hover and active states */
+  color: white;
+}
+
+.tabs span:hover {
+  color: white;
+}
+
+.searchContainer input {
+  flex: 1;
+  border: none;
+  outline: none;
+  font-size: 1rem;
+  padding: 10px;
+  color: #333;
+}
+
+.searchContainer button {
+  background: #002c54;
+  border: none;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.searchButton {
+  background: #001f3f; /* Dark blue color like in your mockup */
+  border: none;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-left: 5px;
+}
+
+.leftLogo {
+  position: absolute;
+  top: 100px;
+  left: 20px;
+  opacity: 0.9;
+}
