@@ -194,3 +194,194 @@
   left: 20px;
   opacity: 0.9;
 }
+
+/* TwitterAnalysis.module.css */
+.container {
+  background: #29aaff;
+  min-height: 100vh;
+  position: relative;
+  padding: 0;
+  font-family: sans-serif;
+  color: white;
+  width: 100%;
+  margin: 0;
+  overflow: hidden;
+}
+
+.leftTabs {
+  width: 300px;
+  padding: 40px;
+  display: flex;
+  flex-direction: column;
+}
+
+.leftLogo {
+  position: absolute;
+  top: 100px;
+  left: 20px;
+  opacity: 0.9;
+  z-index: 1;
+}
+
+.navLinks {
+  display: flex;
+}
+
+.navLink {
+  margin-left: 30px;
+  color: white;
+  text-decoration: none;
+  font-size: 1rem;
+  font-weight: bold;
+  box-shadow: 0 4px 6px rgb(198, 85, 20);
+}
+
+.centerContent {
+  text-align: center;
+  margin-top: 30px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  padding: 0 20px;
+  box-sizing: border-box;
+  position: relative;
+  z-index: 2;
+}
+
+.logoContainer {
+  margin-bottom: 20px;
+  width: 100%;
+  max-width: 450px;
+}
+
+.searchArea {
+  width: 100%;
+  max-width: 600px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.slogan {
+  font-size: 1.2rem;
+  margin-top: 0;
+  margin-bottom: 40px;
+}
+
+.tabsContainer {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  max-width: 500px;
+  margin-bottom: 20px;
+}
+
+.pillTabs {
+  display: flex;
+  border-radius: 30px;
+  overflow: hidden;
+  background: #29aaff;
+  width: fit-content;
+}
+
+.tabButton {
+  padding: 10px 30px;
+  border: none;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: bold;
+  transition: all 0.3s ease;
+  background: transparent;
+  outline: none;
+}
+
+.activeTab {
+  background-color: white !important;
+  color: rgb(0, 21, 50) !important;
+  border-radius: 30px !important;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.002);
+}
+
+.inactiveTab {
+  background-color: transparent !important;
+  color: white !important;
+}
+
+.searchContainer {
+  background: white;
+  border-radius: 30px;
+  display: flex;
+  align-items: center;
+  width: 100%;
+  max-width: 500px;
+  margin: 0 auto;
+  padding: 5px 5px 5px 20px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.498);
+}
+
+.searchInput {
+  flex: 1;
+  border: none;
+  outline: none;
+  font-size: 1rem;
+  padding: 10px;
+  color: #333;
+  background-color: transparent;
+}
+
+.searchButton {
+  background: #001f3f;
+  border: none;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-left: 5px;
+}
+
+.searchIcon {
+  width: 24px;
+  height: 24px;
+}
+
+/* Responsive styles */
+@media (max-width: 992px) {
+  .leftLogo {
+    top: 140px;
+    left: 10px;
+    transform: scale(0.8);
+    transform-origin: top left;
+  }
+}
+
+@media (max-width: 768px) {
+  .leftLogo {
+    display: none;
+  }
+  
+  .tabsContainer {
+    width: 100%;
+  }
+  
+  .pillTabs {
+    width: 100%;
+    justify-content: center;
+  }
+  
+  .tabButton {
+    padding: 8px 15px;
+    font-size: 14px;
+  }
+  
+  .searchContainer {
+    width: 90%;
+  }
+  
+  .logoContainer {
+    max-width: 280px;
+  }
+}

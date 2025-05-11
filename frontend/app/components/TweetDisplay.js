@@ -1,11 +1,36 @@
 "use client";
-import React from 'react';
+import React, { useState } from 'react';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import Button from '@mui/material/Button';
 import Paper from '@mui/material/Paper';
+import IconButton from '@mui/material/IconButton';
+import ContentCopyIcon from '@mui/icons-material/ContentCopy';
+import Tooltip from '@mui/material/Tooltip';
+import Snackbar from '@mui/material/Snackbar';
+import Alert from '@mui/material/Alert';
 
 export default function TweetDisplay() {
+  const [openSnackbar, setOpenSnackbar] = useState(false);
+  const [summaryText, setSummaryText] = useState("Tweet summary will appear here");
+
+  const handleCopy = () => {
+    navigator.clipboard.writeText(summaryText)
+      .then(() => {
+        setOpenSnackbar(true);
+      })
+      .catch((err) => {
+        console.error('Failed to copy text: ', err);
+      });
+  };
+
+  const handleCloseSnackbar = (event, reason) => {
+    if (reason === 'clickaway') {
+      return;
+    }
+    setOpenSnackbar(false);
+  };
+
   return (
     <Box sx={{ width: '100%', mt: 2 }}>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
@@ -64,27 +89,29 @@ export default function TweetDisplay() {
           Tweets will appear here
         </Typography>
       </Paper>
-      <Box sx={{ display: 'flex', alignItems: 'center' }}></Box>
-      <Typography
-          variant="h6"
-          component="div"
-          sx={{ color: '#0099E8', fontWeight: 'bold',
-         
-           }}
-        >
-          summary :
+      
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <Typography
+            variant="h6"
+            component="div"
+            sx={{ color: '#0099E8', fontWeight: 'bold' }}
+          >
+            summary :
         </Typography>
-         <Box 
+        <Box 
             component="img" 
             src="/bird.png" 
             alt="Bird" 
             sx={{ 
               width: 160, 
               height: 60, 
-              ml: 30,
+              ml: 'auto',
+              mr: 2,
               mb: -1
             }} 
-          />
+        />
+      </Box>
+      
       {/* Summary Box - Smaller than tweets box */}
       <Paper
         elevation={0}
@@ -96,18 +123,41 @@ export default function TweetDisplay() {
           width: '100%', // Narrower width
           margin: '0 auto', // Center the box
           boxShadow: `
-          20px 20px 15px -3px rgba(0, 0, 0, 0.2),
-          0px 20px 25px -5px rgba(0, 0, 0, 0.1),
-          0px 5px 5px rgba(0, 0, 0, 0.05)
-        `,
+            20px 20px 15px -3px rgba(0, 0, 0, 0.2),
+            0px 20px 25px -5px rgba(0, 0, 0, 0.1),
+            0px 5px 5px rgba(0, 0, 0, 0.05)
+          `,
+          position: 'relative',
         }}
       >
-         
-        
         <Typography variant="body1" sx={{ color: '#666' }}>
-          Tweet summary will appear here
+          {summaryText}
         </Typography>
+        
+        <Tooltip title="Copy summary to clipboard">
+          <IconButton
+            onClick={handleCopy}
+            sx={{
+              position: 'absolute',
+              bottom: 16,
+              right: 16,
+              backgroundColor: '#0099E8',
+              color: 'white',
+              '&:hover': {
+                backgroundColor: '#007bb5',
+              },
+            }}
+          >
+            <ContentCopyIcon />
+          </IconButton>
+        </Tooltip>
       </Paper>
- </Box>
-);
+      
+      <Snackbar open={openSnackbar} autoHideDuration={3000} onClose={handleCloseSnackbar}>
+        <Alert onClose={handleCloseSnackbar} severity="success" sx={{ width: '100%' }}>
+          Summary copied to clipboard!
+        </Alert>
+      </Snackbar>
+    </Box>
+  );
 }

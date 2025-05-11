@@ -7,12 +7,32 @@ import Button from '@mui/material/Button';
 import Image from 'next/image';
 import LogoutIcon from '@mui/icons-material/ExitToApp';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 
 export default function Layout({ children }) {
+  const router = useRouter();
+
+  const handleLogout = async () => {
+    try {
+      // Clear JWT token from localStorage
+      localStorage.removeItem('token');
+    
+      // Clear any other auth-related data
+      sessionStorage.clear();
+      
+      // Redirect to login page after logout
+      router.push('/login');
+    } catch (error) {
+      console.error('Logout error:', error);
+      // Still redirect to login even if logout API call fails
+      router.push('/login');
+    }
+  };
+
   return (
     <Box sx={{ flexGrow: 1, minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
       <AppBar position="static" sx={{ backgroundColor: 'white' }}>
-        <Toolbar sx={{ 
+        <Toolbar sx={{
           justifyContent: 'space-between',
           paddingLeft: '0 !important', // Remove left padding from Toolbar
           minHeight: '80px !important', // Match your image height
@@ -22,15 +42,15 @@ export default function Layout({ children }) {
             10px 5px 50px rgba(81, 81, 81, 0.14)
           `,
         }}>
-          <Box sx={{ 
-            display: 'flex', 
+          <Box sx={{
+            display: 'flex',
             alignItems: 'center',
             marginLeft: '0px', // Ensure no left margin
             paddingLeft: '0px' // Ensure no left padding
           }}>
-            <Box sx={{ 
-              display: 'flex', 
-              alignItems: 'center', 
+            <Box sx={{
+              display: 'flex',
+              alignItems: 'center',
               textDecoration: 'none',
               borderRadius:'4px',
               width: 100,
@@ -50,10 +70,10 @@ export default function Layout({ children }) {
           </Box>
           
           <Box sx={{ display: 'flex', gap: 2 }}>
-            <Button 
-              variant="text" 
-              sx={{ 
-                color: '#0099E8', 
+            <Button
+              variant="text"
+              sx={{
+                color: '#0099E8',
                 fontWeight: 'bold',
                 '&:hover': {
                   backgroundColor: 'rgba(0, 153, 232, 0.08)'
@@ -62,10 +82,10 @@ export default function Layout({ children }) {
             >
               CONTACT US
             </Button>
-            <Button 
-              variant="text" 
-              sx={{ 
-                color: '#0099E8', 
+            <Button
+              variant="text"
+              sx={{
+                color: '#0099E8',
                 fontWeight: 'bold',
                 '&:hover': {
                   backgroundColor: 'rgba(0, 153, 232, 0.08)'
@@ -74,11 +94,12 @@ export default function Layout({ children }) {
             >
               ABOUT US
             </Button>
-            <Button 
-              variant="text" 
+            <Button
+              variant="text"
               startIcon={<LogoutIcon />}
-              sx={{ 
-                color: '#0099E8', 
+              onClick={handleLogout}
+              sx={{
+                color: '#0099E8',
                 fontWeight: 'bold',
                 '&:hover': {
                   backgroundColor: 'rgba(0, 153, 232, 0.08)'
