@@ -11,4 +11,11 @@ router.post('/login', loginValidation, validate, login);
 // Get current user route
 router.get('/me', protect, getMe);
 
+// routes/auth.js
+router.get('/verify', protect, (req, res) => {
+  res.json({ 
+    success: true,
+    user: req.user
+  })
+})
 module.exports = router;

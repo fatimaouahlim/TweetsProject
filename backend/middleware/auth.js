@@ -1,7 +1,13 @@
+//middleware/auth.js
 const jwt = require('jsonwebtoken');
-const { jwtSecret } = require('../config');
+const jwtSecret = process.env.JWT_SECRET;
+
 const User = require('../models/User');
 
+console.log('Current JWT Config:', {
+  secret: process.env.JWT_SECRET,
+  expire: process.env.JWT_EXPIRE
+});
 /**
  * Middleware to protect routes that require authentication
  */

@@ -1,6 +1,15 @@
+// Load environment variables FIRST before requiring anything else
+require('dotenv').config();
+
+// Now require your app and other modules
 const app = require('./app');
 const { port, nodeEnv } = require('./config');
 const { testConnection } = require('./db');
+
+console.log('Environment variables loaded:', {
+  JWT_SECRET: process.env.JWT_SECRET ? '*****' : 'NOT SET',
+  NODE_ENV: process.env.NODE_ENV
+});
 
 // Start server
 const startServer = async () => {

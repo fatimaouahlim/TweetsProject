@@ -6,10 +6,23 @@ import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import Layout from '../components/layout';
 import TweetDisplay from '../components/TweetAnalyseDisplay';
+import { useRouter } from 'next/navigation';
+import { useEffect } from 'react'; 
+import Link from 'next/link';
 
 export default function Home() {
   const [tweets, setTweets] = useState([]);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
+
+  const router = useRouter()
+
+   useEffect(() => {
+   
+    const token = localStorage.getItem('token')
+    if (!token) {
+      router.push('/login')
+    }
+  }, [router])
 
   const handleAnalyzeClick = () => {
     setIsAnalyzing(true);
@@ -46,6 +59,8 @@ export default function Home() {
 
         {/* Action button */}
         <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
+         <Link href='/sentiment'>
+        
           <Button
             variant="contained"
             onClick={handleAnalyzeClick}
@@ -62,6 +77,7 @@ export default function Home() {
           >
             {isAnalyzing ? 'Analyzing...' : 'Run Analysis'}
           </Button>
+          </Link>
         </Box>
       </Container>
     </Layout>

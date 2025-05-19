@@ -1,5 +1,5 @@
 "use client"
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { 
   Box, 
   TextField, 
@@ -11,7 +11,7 @@ import {
   Paper,
   Alert
 } from '@mui/material';
-import { Visibility, VisibilityOff, Email, Lock } from '@mui/icons-material';
+import { Visibility, VisibilityOff, Email } from '@mui/icons-material';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -26,48 +26,48 @@ export default function Login() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
+
+ 
   const handleChange = (e) => {
     setFormData({
       ...formData,
       [e.target.name]: e.target.value
     });
   };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setError('');
-    setLoading(true);
+// app/login/page.js
+const handleSubmit = async (e) => {
+  e.preventDefault();
+  setError('');
+  setLoading(true);
+  
+  try {
+    const response = await fetch('http://localhost:5000/api/auth/login', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(formData),
+      credentials: 'include' // Important for cookies
+    });
     
-    try {
-      // Call backend API for login
-      const response = await fetch('http://localhost:5000/api/auth/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(formData),
-      });
-      
-      const data = await response.json();
-      
-      if (!response.ok) {
-        throw new Error(data.message || 'Login failed');
-      }
-      
-      // Store token and user data in localStorage
-      localStorage.setItem('token', data.data.token);
-      localStorage.setItem('user', JSON.stringify(data.data));
-      
-      // Redirect to dashboard or home page
-      router.push('/search');
-    } catch (error) {
-      console.error('Login error:', error);
-      setError(error.message || 'Failed to login. Please check your credentials.');
-    } finally {
-      setLoading(false);
+    const data = await response.json();
+    
+    if (!response.ok) {
+      throw new Error(data.message || 'Login failed');
     }
-  };
-
+    
+    // Store user data in localStorage (but not token)
+    localStorage.setItem('user', JSON.stringify(data.data));
+    
+    // Redirect to dashboard or home page
+    router.push('/search');
+  } catch (error) {
+    console.error('Login error:', error);
+    setError(error.message || 'Failed to login. Please check your credentials.');
+  } finally {
+    setLoading(false);
+  }
+};
   const handleClickShowPassword = () => {
     setShowPassword(!showPassword);
   };

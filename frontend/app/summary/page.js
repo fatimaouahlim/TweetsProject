@@ -7,8 +7,21 @@ import TweetDisplay from '../components/TweetDisplay';
 import Typography from '@mui/material/Typography';
 import Button from '@mui/material/Button';
 import Link from 'next/link';
-
+import { useRouter } from 'next/navigation'
+import { useEffect } from 'react'; 
 export default function Home() {
+
+const router = useRouter()
+  
+  useEffect(() => {
+   
+    const token = localStorage.getItem('token')
+    if (!token) {
+      router.push('/login')
+    }
+  }, [router])
+
+
   return (
     <Layout>
       <Container maxWidth="md" sx={{ pt: 4, pb: 4 }}>

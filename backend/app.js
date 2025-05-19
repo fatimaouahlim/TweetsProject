@@ -1,6 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
+const cookieParser = require('cookie-parser'); // Add this import
 const { corsOrigin } = require('./config');
 const authRoutes = require('./routes/authRoutes');
 
@@ -10,12 +11,16 @@ const app = express();
 // Security middleware
 app.use(helmet());
 
-// CORS configuration
+// CORS configuration - THIS IS THE KEY FIX
 app.use(cors({
   origin: corsOrigin,
-  methods: ['GET', 'POST', 'PUT', 'DELETE'],
-  allowedHeaders: ['Content-Type', 'Authorization']
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'Cookie'],
+  credentials: true // This is absolutely essential for cookies!
 }));
+
+// Cookie parser middleware - Add this BEFORE your routes
+app.use(cookieParser());
 
 // Body parser middleware
 app.use(express.json());
