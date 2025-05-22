@@ -5,7 +5,17 @@ import Typography from '@mui/material/Typography';
 import Paper from '@mui/material/Paper';
 import TextField from '@mui/material/TextField';
 
-export default function TweetDisplay() {
+export default function TweetDisplay({ inputText, setInputText, analysisResult }) {
+  
+  const handleTextChange = (event) => {
+    const newValue = event.target.value;
+    
+    // Make sure setInputText is a function before calling it
+    if (typeof setInputText === 'function') {
+      setInputText(newValue);
+    }
+  };
+
   return (
     <Box sx={{ width: '100%', mt: 2 }}>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
@@ -52,11 +62,24 @@ export default function TweetDisplay() {
           multiline 
           rows={4} 
           placeholder="Please enter your summary text :" 
-          variant="outlined" 
+          variant="outlined"
+          value={inputText || ""} // Ensure it's never undefined
+          onChange={handleTextChange}
           sx={{ 
             color: '#666', 
             backgroundColor: '#fff',
-            borderRadius: 2 
+            borderRadius: 2,
+            '& .MuiOutlinedInput-root': {
+              '& fieldset': {
+                borderColor: '#ccc',
+              },
+              '&:hover fieldset': {
+                borderColor: '#0099E8',
+              },
+              '&.Mui-focused fieldset': {
+                borderColor: '#0099E8',
+              },
+            },
           }} 
         />
       </Paper>

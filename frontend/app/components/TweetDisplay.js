@@ -9,18 +9,29 @@ import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import Tooltip from '@mui/material/Tooltip';
 import Snackbar from '@mui/material/Snackbar';
 import Alert from '@mui/material/Alert';
+import CircularProgress from '@mui/material/CircularProgress';
 
-export default function TweetDisplay() {
+export default function TweetDisplay({ initialQuery = '' }) {
+  const [tweets, setTweets] = useState([]);
   const [openSnackbar, setOpenSnackbar] = useState(false);
   const [summaryText, setSummaryText] = useState("Tweet summary will appear here");
+  const [loading, setLoading] = useState(false);
+  const [summarizing, setSummarizing] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState('');
+  const [snackbarSeverity, setSnackbarSeverity] = useState('success');
 
   const handleCopy = () => {
     navigator.clipboard.writeText(summaryText)
       .then(() => {
+        setSnackbarMessage('Summary copied to clipboard!');
+        setSnackbarSeverity('success');
         setOpenSnackbar(true);
       })
       .catch((err) => {
         console.error('Failed to copy text: ', err);
+        setSnackbarMessage('Failed to copy text!');
+        setSnackbarSeverity('error');
+        setOpenSnackbar(true);
       });
   };
 
@@ -30,6 +41,97 @@ export default function TweetDisplay() {
     }
     setOpenSnackbar(false);
   };
+
+  const fetchTweets = async (query) => {
+    if (!query) return;
+    
+    setLoading(true);
+    try {
+      const response = await fetch('http://localhost:8000/search-tweets', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          query,
+          max_results: 10
+        }),
+      });
+      
+      const data = await response.json();
+      
+      if (response.ok) {
+        setTweets(data.tweets);
+        if (data.tweets.length === 0) {
+          setSnackbarMessage('No tweets found for this query');
+          setSnackbarSeverity('info');
+          setOpenSnackbar(true);
+        }
+      } else {
+        setSnackbarMessage(`Error: ${data.detail}`);
+        setSnackbarSeverity('error');
+        setOpenSnackbar(true);
+      }
+    } catch (error) {
+      console.error('Error fetching tweets:', error);
+      setSnackbarMessage('Failed to connect to server');
+      setSnackbarSeverity('error');
+      setOpenSnackbar(true);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const generateSummary = async () => {
+    if (tweets.length === 0) {
+      setSnackbarMessage('No tweets to summarize');
+      setSnackbarSeverity('warning');
+      setOpenSnackbar(true);
+      return;
+    }
+    
+    setSummarizing(true);
+    try {
+      // Combine all tweet texts
+      const combinedText = tweets.map(tweet => tweet.text).join(' ');
+      
+      const response = await fetch('http://localhost:8000/summarize', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          text: combinedText,
+          max_length: 230,
+          min_length: 30
+        }),
+      });
+      
+      const data = await response.json();
+      
+      if (response.ok) {
+        setSummaryText(data.summary);
+      } else {
+        setSnackbarMessage(`Error: ${data.detail}`);
+        setSnackbarSeverity('error');
+        setOpenSnackbar(true);
+      }
+    } catch (error) {
+      console.error('Error generating summary:', error);
+      setSnackbarMessage('Failed to generate summary');
+      setSnackbarSeverity('error');
+      setOpenSnackbar(true);
+    } finally {
+      setSummarizing(false);
+    }
+  };
+
+  // If initialQuery is provided, fetch tweets when component mounts
+  React.useEffect(() => {
+    if (initialQuery) {
+      fetchTweets(initialQuery);
+    }
+  }, [initialQuery]);
 
   return (
     <Box sx={{ width: '100%', mt: 2 }}>
@@ -55,6 +157,8 @@ export default function TweetDisplay() {
           />
           <Button
             variant="contained"
+            onClick={generateSummary}
+            disabled={summarizing || tweets.length === 0}
             sx={{
               backgroundColor: '#1e8dd4',
               borderRadius: 28,
@@ -63,7 +167,7 @@ export default function TweetDisplay() {
               },
             }}
           >
-            summary
+            {summarizing ? <CircularProgress size={24} color="inherit" /> : 'Summary'}
           </Button>
         </Box>
       </Box>
@@ -77,38 +181,50 @@ export default function TweetDisplay() {
           backgroundColor: '#e1f0fa',
           minHeight: 400,
           width: '100%',
-          boxShadow: `
-            20px 20px 15px -3px rgba(0, 0, 0, 0.2),
-            0px 20px 25px -5px rgba(0, 0, 0, 0.1),
-            0px 5px 5px rgba(0, 0, 0, 0.05)
-          `,
-          mb: 3
+          boxShadow: 
+            '20px 20px 15px -3px rgba(0, 0, 0, 0.2), 0px 20px 25px -5px rgba(0, 0, 0, 0.1), 0px 5px 5px rgba(0, 0, 0, 0.05)',
+          mb: 3,
+          overflowY: 'auto'
         }}
       >
-        <Typography variant="body1" sx={{ color: '#666' }}>
-          Tweets will appear here
-        </Typography>
+        {loading ? (
+          <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
+            <CircularProgress />
+          </Box>
+        ) : tweets.length > 0 ? (
+          tweets.map((tweet, index) => (
+            <Box key={tweet.id || index} sx={{ mb: 2, p: 2, borderRadius: 1, backgroundColor: 'rgba(255, 255, 255, 0.7)' }}>
+              <Typography variant="body1" sx={{ color: '#333' }}>
+                {tweet.text}
+              </Typography>
+            </Box>
+          ))
+        ) : (
+          <Typography variant="body1" sx={{ color: '#666', textAlign: 'center', py: 10 }}>
+            Tweets will appear here
+          </Typography>
+        )}
       </Paper>
       
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <Typography
-            variant="h6"
-            component="div"
-            sx={{ color: '#0099E8', fontWeight: 'bold' }}
-          >
-            summary :
+          variant="h6"
+          component="div"
+          sx={{ color: '#0099E8', fontWeight: 'bold' }}
+        >
+          Summary :
         </Typography>
         <Box 
-            component="img" 
-            src="/bird.png" 
-            alt="Bird" 
-            sx={{ 
-              width: 160, 
-              height: 60, 
-              ml: 'auto',
-              mr: 2,
-              mb: -1
-            }} 
+          component="img" 
+          src="/bird.png" 
+          alt="Bird" 
+          sx={{ 
+            width: 160, 
+            height: 60, 
+            ml: 'auto',
+            mr: 2,
+            mb: -1
+          }} 
         />
       </Box>
       
@@ -122,11 +238,8 @@ export default function TweetDisplay() {
           minHeight: 150, // Smaller height
           width: '100%', // Narrower width
           margin: '0 auto', // Center the box
-          boxShadow: `
-            20px 20px 15px -3px rgba(0, 0, 0, 0.2),
-            0px 20px 25px -5px rgba(0, 0, 0, 0.1),
-            0px 5px 5px rgba(0, 0, 0, 0.05)
-          `,
+          boxShadow: 
+            '20px 20px 15px -3px rgba(0, 0, 0, 0.2), 0px 20px 25px -5px rgba(0, 0, 0, 0.1), 0px 5px 5px rgba(0, 0, 0, 0.05)',
           position: 'relative',
         }}
       >
@@ -154,8 +267,8 @@ export default function TweetDisplay() {
       </Paper>
       
       <Snackbar open={openSnackbar} autoHideDuration={3000} onClose={handleCloseSnackbar}>
-        <Alert onClose={handleCloseSnackbar} severity="success" sx={{ width: '100%' }}>
-          Summary copied to clipboard!
+        <Alert onClose={handleCloseSnackbar} severity={snackbarSeverity} sx={{ width: '100%' }}>
+          {snackbarMessage}
         </Alert>
       </Snackbar>
     </Box>
