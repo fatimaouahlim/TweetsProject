@@ -11,6 +11,7 @@ import Snackbar from '@mui/material/Snackbar';
 import Alert from '@mui/material/Alert';
 import CircularProgress from '@mui/material/CircularProgress';
 
+
 export default function TweetDisplay({ initialQuery = '' }) {
   const [tweets, setTweets] = useState([]);
   const [openSnackbar, setOpenSnackbar] = useState(false);
@@ -40,6 +41,35 @@ export default function TweetDisplay({ initialQuery = '' }) {
       return;
     }
     setOpenSnackbar(false);
+  };
+
+  const saveToHistory = async (tweetsData, summaryText) => {
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) return;
+
+      // Get search type from URL or localStorage
+      const urlParams = new URLSearchParams(window.location.search);
+      const searchType = urlParams.get('type') || 'Topics';
+
+      await fetch('http://localhost:5000/api/history/save', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          query: initialQuery,
+          search_type: searchType,
+          tweets_data: tweetsData,
+          summary: summaryText,
+          sentiment_analysis: null // No sentiment analysis in this component
+        })
+      });
+    } catch (error) {
+      console.error('Failed to save to history:', error);
+      // Don't show error to user, as this is not critical
+    }
   };
 
   const fetchTweets = async (query) => {
@@ -111,6 +141,9 @@ export default function TweetDisplay({ initialQuery = '' }) {
       
       if (response.ok) {
         setSummaryText(data.summary);
+        
+        // Save to history after successful summary generation
+        await saveToHistory(tweets, data.summary);
       } else {
         setSnackbarMessage(`Error: ${data.detail}`);
         setSnackbarSeverity('error');

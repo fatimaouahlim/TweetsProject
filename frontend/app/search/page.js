@@ -4,23 +4,61 @@ import styles from './page.module.css'
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Layout from '../components/layoutv2'
+import Popup from '../components/Popup'
 
 export default function Home() {
   const [activeTab, setActiveTab] = useState('Topics')
   const [searchText, setSearchText] = useState('')
+  const [searchMade, setSearchMade] = useState(false)
+  const [showLimitPopup, setShowLimitPopup] = useState(false)
   const router = useRouter()
   
   useEffect(() => {
-    const token = localStorage.getItem('token')
+    console.log('Search page useEffect triggered');
+    
+    const token = localStorage.getItem('token');
+    const user = localStorage.getItem('user');
+    
+    console.log('Token found:', token);
+    console.log('User found:', user);
+    
     if (!token) {
-      router.push('/login')
+      console.log('No token found, redirecting to login');
+      router.push('/login');
+    } else {
+      console.log('Token exists, user can stay on search page');
+      
+      // Optional: Verify token format
+      try {
+        const tokenParts = token.split('.');
+        if (tokenParts.length === 3) {
+          const payload = JSON.parse(atob(tokenParts[1]));
+          console.log('Token payload:', payload);
+          
+          // Check if token is expired
+          const currentTime = Date.now() / 1000;
+          if (payload.exp && payload.exp < currentTime) {
+            console.log('Token is expired, redirecting to login');
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
+            router.push('/login');
+          } else {
+            console.log('Token is valid');
+          }
+        }
+      } catch (error) {
+        console.error('Error parsing token:', error);
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        router.push('/login');
+      }
     }
   }, [router])
 
   const getPlaceholder = () => {
     switch(activeTab) {
       case 'Topics': return '#violence against women'
-      case 'Users': return 'John Smith'
+      case 'Users': return '@johnSmith'
       case 'Trends': return 'Ferrari'
       default: return ''
     }
@@ -29,6 +67,13 @@ export default function Home() {
   const handleSearch = () => {
     if (!searchText.trim()) return;
     
+    const searchCount = parseInt(sessionStorage.getItem('searchCount') || '0', 10)
+
+  if (searchCount >= 4) { //1
+    setShowLimitPopup(true)
+    return
+  }
+
     // Format the query based on active tab
     let formattedQuery = searchText;
     if (activeTab === 'Topics' && !searchText.startsWith('#')) {
@@ -36,6 +81,9 @@ export default function Home() {
     } else if (activeTab === 'Users' && !searchText.startsWith('@')) {
       formattedQuery = `from:${searchText}`;
     }
+    
+     sessionStorage.setItem('searchCount', (searchCount + 1).toString())
+
     
     // Redirect to summary page with query parameters
     router.push(`/summary?query=${encodeURIComponent(formattedQuery)}&type=${activeTab}`);
@@ -130,6 +178,18 @@ export default function Home() {
             }}
           />
         </div>
+
+        {showLimitPopup && (
+        <Popup 
+          message="You can only make one search per session. Subscribe for unlimited access."
+          onClose={() => setShowLimitPopup(false)} 
+          onSubscribe={() => {
+            setShowLimitPopup(false)
+            router.push('/subscribe') // or redirect to your payment page
+          }}
+        />
+      )}
+      
       </div>
     </Layout>
   )

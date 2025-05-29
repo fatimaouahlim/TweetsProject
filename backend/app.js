@@ -4,6 +4,8 @@ const helmet = require('helmet');
 const cookieParser = require('cookie-parser'); // Add this import
 const { corsOrigin } = require('./config');
 const authRoutes = require('./routes/authRoutes');
+const historyRoutes = require('./routes/history'); 
+
 
 // Initialize Express app
 const app = express();
@@ -11,12 +13,12 @@ const app = express();
 // Security middleware
 app.use(helmet());
 
-// CORS configuration - THIS IS THE KEY FIX
+// CORS configuration 
 app.use(cors({
   origin: corsOrigin,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'Cookie'],
-  credentials: true // This is absolutely essential for cookies!
+  credentials: true // for cookies
 }));
 
 // Cookie parser middleware - Add this BEFORE your routes
@@ -28,6 +30,7 @@ app.use(express.urlencoded({ extended: false }));
 
 // API routes
 app.use('/api/auth', authRoutes);
+app.use('/api/history', historyRoutes);
 
 // Root route
 app.get('/', (req, res) => {

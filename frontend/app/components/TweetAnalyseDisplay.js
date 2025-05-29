@@ -5,7 +5,7 @@ import Typography from '@mui/material/Typography';
 import Paper from '@mui/material/Paper';
 import TextField from '@mui/material/TextField';
 
-export default function TweetDisplay({ inputText, setInputText, analysisResult }) {
+export default function TweetDisplay({ inputText, setInputText, analysisResult, initialQuery }) {
   
   const handleTextChange = (event) => {
     const newValue = event.target.value;
@@ -15,6 +15,42 @@ export default function TweetDisplay({ inputText, setInputText, analysisResult }
       setInputText(newValue);
     }
   };
+
+  const saveToHistory = async (sentimentData) => {
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) return;
+
+      // Get search type from URL or localStorage
+      const urlParams = new URLSearchParams(window.location.search);
+      const searchType = urlParams.get('type') || 'Topics';
+
+      await fetch('http://localhost:5000/api/history/save', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          query: initialQuery || inputText, // Use initialQuery if available, otherwise use inputText
+          search_type: searchType,
+          tweets_data: [], // No tweets data in this component
+          summary: inputText, // The text being analyzed
+          sentiment_analysis: sentimentData
+        })
+      });
+    } catch (error) {
+      console.error('Failed to save to history:', error);
+      // Don't show error to user, as this is not critical
+    }
+  };
+
+  // Save to history when analysis result is available
+  React.useEffect(() => {
+    if (analysisResult && (initialQuery || inputText)) {
+      saveToHistory(analysisResult);
+    }
+  }, [analysisResult, initialQuery, inputText]);
 
   return (
     <Box sx={{ width: '100%', mt: 2 }}>

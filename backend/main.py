@@ -2,6 +2,7 @@ from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
+from typing import Literal
 import tweepy
 from transformers import pipeline
 
@@ -18,8 +19,19 @@ app.add_middleware(
 )
 
 # Twitter API credentials
-bearer_token = "AAAAAAAAAAAAAAAAAAAAAHWD1wEAAAAABWeAlx%2FTzyrEmrB7W5Gbrw9TjTI%3DyyXgphkkrcfpznXEXPYwQpkKQXHKUY0MzUaY4QrIYW6UkbzpzG"
-client = tweepy.Client(bearer_token=bearer_token)
+bearer_token = "AAAAAAAAAAAAAAAAAAAAACoz2AEAAAAA%2F5Ngbmk20KUR00w5%2FlJ5Yk%2FE7PQ%3DbQQyWZ07j2CWZj6VgsNgYUZXyAbD4hVvZO38IkpIRRwF96sOlW"
+consumer_key = "22KkXsdtQFJ42BwOayxmHcFPn"
+consumer_secret = "RqmW8SQ7pAhOHStl8X0AUM8iBVXKABv1h3sv0DiDFo9IKDAU3t"
+access_token = "1927365735325573120-jmjH9ieXqzjrmXxNFs8y3mxI108goj"
+access_token_secret = "G67K48MLXMuXZXDwtyQC6RBCMLGoOOuY5541eJW5hD720"
+
+client = tweepy.Client(
+    bearer_token=bearer_token,
+    consumer_key=consumer_key,
+    consumer_secret=consumer_secret,
+    access_token=access_token,
+    access_token_secret=access_token_secret
+)
 
 # Initialize models
 print("Loading models...")
@@ -35,6 +47,7 @@ print("Models loaded successfully!")
 class SearchQuery(BaseModel):
     query: str
     max_results: int = 10
+    search_type: Literal["user", "trend"] = "trend"
 
 class SummaryRequest(BaseModel):
     text: str
@@ -51,7 +64,7 @@ def read_root():
         "message": "Tweet Search, Summarization & Sentiment Analysis API",
         "endpoints": {
             "search_tweets": "/search-tweets",
-            "summarize": "/summarize", 
+            "summarize": "/summarize",
             "sentiment_analysis": "/api/sentiment",
             "test_sentiment": "/api/sentiment/test"
         }
@@ -61,32 +74,119 @@ def read_root():
 @app.post("/search-tweets")
 def search_tweets(search_query: SearchQuery):
     try:
-        query = f"{search_query.query} lang:en" if "lang:" not in search_query.query else search_query.query
-            
-        tweets = client.search_recent_tweets(
-            query=query, 
-            max_results=search_query.max_results
-        )
-        
-        if not tweets.data:
-            return {"tweets": [], "message": "No tweets found for this query."}
-            
-        tweet_list = [{"id": str(tweet.id), "text": tweet.text} for tweet in tweets.data]
-        return {"tweets": tweet_list}
-        
+        if search_query.search_type == "user":
+            # Search for tweets BY a specific user
+            try:
+                # First, get the user by username (remove @ if present)
+                username = search_query.query.replace("@", "")
+                user_resp = client.get_user(username=username)
+                
+                if user_resp.data is None:
+                    return {"tweets": [], "message": f"User '{username}' not found."}
+                
+                user_id = user_resp.data.id
+                
+                # Get recent tweets BY this user
+                tweets = client.get_users_tweets(
+                    id=user_id,
+                    max_results=min(search_query.max_results, 100),  # Twitter API limit
+                    tweet_fields=["created_at", "public_metrics"],
+                    #exclude=["retweets", "replies"]  # Get only original tweets
+                )
+                
+                if not tweets.data:
+                    return {"tweets": [], "message": f"No recent tweets found for user '@{username}'."}
+                
+                tweet_list = []
+                for tweet in tweets.data:
+                    tweet_list.append({
+                        "id": str(tweet.id),
+                        "text": tweet.text,
+                        "created_at": tweet.created_at.isoformat() if tweet.created_at else None,
+                        "user": f"@{username}"
+                    })
+                
+                return {
+                    "tweets": tweet_list,
+                    "message": f"Found {len(tweet_list)} tweets by @{username}",
+                    "search_type": "user"
+                }
+                
+            except tweepy.NotFound:
+                return {"tweets": [], "message": f"User '{search_query.query}' not found."}
+            except tweepy.Unauthorized:
+                return {"tweets": [], "message": f"User '{search_query.query}' account is private or suspended."}
+
+        elif search_query.search_type == "trend":
+            # Search for tweets ABOUT a trend/topic
+            try:
+                # Clean up the query and add language filter if not present
+                query = search_query.query.strip()
+                if "lang:" not in query:
+                    query = f"{query} lang:en"
+                
+                # Remove retweets and replies for cleaner results
+                if "-is:retweet" not in query:
+                    query = f"{query} -is:retweet"
+                
+                tweets = client.search_recent_tweets(
+                    query=query,
+                    max_results=min(search_query.max_results, 100),  # Twitter API limit
+                    tweet_fields=["created_at", "author_id", "public_metrics"],
+                    expansions=["author_id"],
+                    user_fields=["username"]
+                )
+                
+                if not tweets.data:
+                    return {"tweets": [], "message": f"No recent tweets found for trend '{search_query.query}'."}
+                
+                # Create a mapping of user IDs to usernames
+                users_dict = {}
+                if tweets.includes and 'users' in tweets.includes:
+                    for user in tweets.includes['users']:
+                        users_dict[user.id] = user.username
+                
+                tweet_list = []
+                for tweet in tweets.data:
+                    username = users_dict.get(tweet.author_id, "unknown")
+                    tweet_list.append({
+                        "id": str(tweet.id),
+                        "text": tweet.text,
+                        "created_at": tweet.created_at.isoformat() if tweet.created_at else None,
+                        "user": f"@{username}" if username != "unknown" else "unknown"
+                    })
+                
+                return {
+                    "tweets": tweet_list,
+                    "message": f"Found {len(tweet_list)} tweets about '{search_query.query}'",
+                    "search_type": "trend"
+                }
+                
+            except Exception as e:
+                return {"tweets": [], "message": f"Error searching for trend: {str(e)}"}
+
+        else:
+            raise HTTPException(status_code=400, detail="Invalid search_type. Must be 'user' or 'trend'.")
+
     except tweepy.TooManyRequests:
         raise HTTPException(status_code=429, detail="Rate limit reached. Try again later.")
+    except tweepy.Unauthorized:
+        raise HTTPException(status_code=401, detail="Twitter API authentication failed. Check your bearer token.")
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Error: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Unexpected error: {str(e)}")
 
 # Summarization Endpoint
 @app.post("/summarize")
 def summarize_text(summary_request: SummaryRequest):
     try:
+        # Check if text is long enough to summarize
+        if len(summary_request.text.split()) < 10:
+            return {"summary": summary_request.text, "message": "Text too short to summarize"}
+        
         summary_result = summarizer(
-            summary_request.text, 
-            max_length=summary_request.max_length, 
-            min_length=summary_request.min_length, 
+            summary_request.text,
+            max_length=summary_request.max_length,
+            min_length=summary_request.min_length,
             do_sample=False
         )
         

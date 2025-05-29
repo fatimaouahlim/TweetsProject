@@ -9,7 +9,12 @@ import {
   InputAdornment, 
   IconButton,
   Paper,
-  Alert
+  Alert,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogContentText,
+  DialogActions
 } from '@mui/material';
 import { Visibility, VisibilityOff, Email, Lock, Person } from '@mui/icons-material';
 import Image from 'next/image';
@@ -27,6 +32,7 @@ export default function Register() {
   });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [successModalOpen, setSuccessModalOpen] = useState(false);
 
   const handleChange = (e) => {
     setFormData({
@@ -72,12 +78,9 @@ export default function Register() {
         throw new Error(data.message || 'Registration failed');
       }
       
-      // Store token and user data in localStorage
-      localStorage.setItem('token', data.data.token);
-      localStorage.setItem('user', JSON.stringify(data.data));
+      // Show success modal instead of redirecting
+      setSuccessModalOpen(true);
       
-      // Redirect to dashboard or home page
-      router.push('/login');
     } catch (error) {
       console.error('Registration error:', error);
       setError(error.message || 'Failed to register. Please try again.');
@@ -88,6 +91,11 @@ export default function Register() {
 
   const handleClickShowPassword = () => {
     setShowPassword(!showPassword);
+  };
+
+  const handleCloseSuccessModal = () => {
+    setSuccessModalOpen(false);
+    router.push('/login');
   };
 
   return (
@@ -295,6 +303,32 @@ export default function Register() {
           </Paper>
         </Box>
       </Box>
+
+      {/* Success Modal */}
+      <Dialog
+        open={successModalOpen}
+        onClose={handleCloseSuccessModal}
+        aria-labelledby="alert-dialog-title"
+        aria-describedby="alert-dialog-description"
+      >
+        <DialogTitle id="alert-dialog-title" sx={{ color: '#1da9ff' }}>
+          Success!
+        </DialogTitle>
+        <DialogContent>
+          <DialogContentText id="alert-dialog-description">
+            The account has been created successfully.
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button 
+            onClick={handleCloseSuccessModal} 
+            autoFocus
+            sx={{ color: '#1da9ff' }}
+          >
+            Go to Login
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Container>
   );
 }

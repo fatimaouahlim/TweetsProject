@@ -8,6 +8,7 @@ import Image from 'next/image';
 import LogoutIcon from '@mui/icons-material/ExitToApp';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { History as HistoryIcon, Search as SearchIcon, Analytics as AnalyticsIcon } from '@mui/icons-material';
 
 export default function Layout({ children }) {
   const router = useRouter();
@@ -59,6 +60,7 @@ export default function Layout({ children }) {
               overflow: 'hidden',
               marginLeft: '0px' // Remove any potential margin
             }}>
+              <Link href={'/search'}>
               <Image
                 src="/twanalyzelogov3.jpg"
                 alt="TwAnalyze Logo"
@@ -66,10 +68,42 @@ export default function Layout({ children }) {
                 style={{ objectFit: 'cover' }} // Use 'cover' to fill the space completely
                 priority
               />
+              </Link>
             </Box>
           </Box>
           
           <Box sx={{ display: 'flex', gap: 2 }}>
+          <Link href="/subscribe">
+    <Button
+      variant="text"
+      sx={{
+       color: '#0099E8',
+        fontWeight: 'bold',
+        '&:hover': {
+          backgroundColor: 'rgba(0, 153, 232, 0.08)'
+        }
+      }}
+    >
+      SUBSCRIBE
+    </Button>
+  </Link>
+  
+             <Link href="/History" passHref>
+              <Button 
+                color="inherit" 
+                startIcon={<HistoryIcon />}
+                 sx={{
+                color: '#0099E8',
+                fontWeight: 'bold',
+                '&:hover': {
+                  backgroundColor: 'rgba(0, 153, 232, 0.08)'
+                }
+              }}
+              >
+                History
+              </Button>
+            </Link>
+            <Link href={'/contactus'}>
             <Button
               variant="text"
               sx={{
@@ -82,6 +116,8 @@ export default function Layout({ children }) {
             >
               CONTACT US
             </Button>
+            </Link>
+            <Link href={'/Aboutus'}>
             <Button
               variant="text"
               sx={{
@@ -94,6 +130,7 @@ export default function Layout({ children }) {
             >
               ABOUT US
             </Button>
+            </Link>
             <Button
               variant="text"
               startIcon={<LogoutIcon />}
@@ -108,6 +145,8 @@ export default function Layout({ children }) {
             >
               LOGOUT
             </Button>
+
+             
           </Box>
         </Toolbar>
       </AppBar>

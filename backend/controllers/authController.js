@@ -111,16 +111,18 @@ exports.login = async (req, res) => {
     const token = generateToken(user.id);
 
     // Return response
-    return res.status(200).json({
-      success: true,
-      message: 'Login successful',
-      data: {
-        id: user.id,
-        username: user.username,
-        email: user.email,
-        token
-      }
-    });
+    // In your auth controller
+return res.status(200).json({
+  success: true,
+  message: 'Login successful',
+  token: token,  // Make sure this matches frontend expectation
+  user: {
+    id: user.id,
+    username: user.username,
+    email: user.email
+  }
+});
+
   } catch (error) {
     console.error('Login error:', error);
     return res.status(500).json({
