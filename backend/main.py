@@ -19,11 +19,11 @@ app.add_middleware(
 )
 
 # Twitter API credentials
-bearer_token = "AAAAAAAAAAAAAAAAAAAAACoz2AEAAAAA%2F5Ngbmk20KUR00w5%2FlJ5Yk%2FE7PQ%3DbQQyWZ07j2CWZj6VgsNgYUZXyAbD4hVvZO38IkpIRRwF96sOlW"
-consumer_key = "22KkXsdtQFJ42BwOayxmHcFPn"
-consumer_secret = "RqmW8SQ7pAhOHStl8X0AUM8iBVXKABv1h3sv0DiDFo9IKDAU3t"
-access_token = "1927365735325573120-jmjH9ieXqzjrmXxNFs8y3mxI108goj"
-access_token_secret = "G67K48MLXMuXZXDwtyQC6RBCMLGoOOuY5541eJW5hD720"
+bearer_token = 
+consumer_key = 
+consumer_secret =
+access_token = 
+access_token_secret = 
 
 client = tweepy.Client(
     bearer_token=bearer_token,
