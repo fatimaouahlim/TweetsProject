@@ -1,4 +1,3 @@
-// pages/contact.js or app/contact/page.js (depending on your Next.js version)
 "use client"
 import Head from 'next/head';
 import { useState } from 'react';
@@ -13,6 +12,7 @@ export default function Contact() {
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitStatus, setSubmitStatus] = useState(null);
+  const [submitMessage, setSubmitMessage] = useState('');
   const [activeTab, setActiveTab] = useState('contact');
 
   const handleInputChange = (e) => {
@@ -20,20 +20,56 @@ export default function Contact() {
       ...formData,
       [e.target.name]: e.target.value
     });
+    // Clear any previous error/success messages when user starts typing
+    if (submitStatus) {
+      setSubmitStatus(null);
+      setSubmitMessage('');
+    }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
+    setSubmitStatus(null);
+    setSubmitMessage('');
     
     try {
-      
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      console.log('Form submitted:', formData);
-      setSubmitStatus('success');
-      setFormData({ name: '', email: '', subject: '', message: '' });
+      // Updated API endpoint to match your backend
+      const response = await fetch('http://localhost:5000/api/contact', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
+      });
+
+      // Check if response is JSON
+      const contentType = response.headers.get('content-type');
+      if (!contentType || !contentType.includes('application/json')) {
+        throw new Error('Server returned non-JSON response');
+      }
+
+      const data = await response.json();
+
+      if (response.ok) {
+        setSubmitStatus('success');
+        setSubmitMessage(data.message || 'Thank you! Your message has been sent successfully. We\'ll get back to you within 24-48 hours.');
+        // Reset form after successful submission
+        setFormData({ name: '', email: '', subject: '', message: '' });
+      } else {
+        setSubmitStatus('error');
+        setSubmitMessage(data.error || 'An error occurred while sending your message. Please try again.');
+      }
     } catch (error) {
+      console.error('Form submission error:', error);
       setSubmitStatus('error');
+      if (error.message === 'Server returned non-JSON response') {
+        setSubmitMessage('Server error. Please check if the backend server is running.');
+      } else if (error.name === 'TypeError' && error.message.includes('fetch')) {
+        setSubmitMessage('Cannot connect to server. Please check if the backend is running on port 5000.');
+      } else {
+        setSubmitMessage('Network error. Please check your connection and try again.');
+      }
     } finally {
       setIsSubmitting(false);
     }
@@ -63,7 +99,7 @@ export default function Contact() {
   ];
 
   return (
-  <Layout>
+    <Layout>
       <Head>
         <title>Contact Us - Twanalyze</title>
         <meta name="description" content="Get in touch with the Twanalyze team. We're here to help with your tweet analysis needs." />
@@ -117,13 +153,31 @@ export default function Contact() {
                   
                   {submitStatus === 'success' && (
                     <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4">
-                      Thank you! Your message has been sent successfully. We'll get back to you within 24-48 hours.
+                      <div className="flex">
+                        <div className="flex-shrink-0">
+                          <svg className="h-5 w-5 text-green-400" viewBox="0 0 20 20" fill="currentColor">
+                            <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                          </svg>
+                        </div>
+                        <div className="ml-3">
+                          <p className="text-sm font-medium">{submitMessage}</p>
+                        </div>
+                      </div>
                     </div>
                   )}
                   
                   {submitStatus === 'error' && (
                     <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
-                      Sorry, there was an error sending your message. Please try again or contact us directly.
+                      <div className="flex">
+                        <div className="flex-shrink-0">
+                          <svg className="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+                            <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                          </svg>
+                        </div>
+                        <div className="ml-3">
+                          <p className="text-sm font-medium">{submitMessage}</p>
+                        </div>
+                      </div>
                     </div>
                   )}
 
@@ -140,7 +194,8 @@ export default function Contact() {
                           required
                           value={formData.name}
                           onChange={handleInputChange}
-                          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#1da9ff] focus:border-transparent transition-colors"
+                          disabled={isSubmitting}
+                          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#1da9ff] focus:border-transparent transition-colors disabled:bg-gray-100 disabled:cursor-not-allowed text-black disabled:text-black"
                           placeholder="Your full name"
                         />
                       </div>
@@ -155,7 +210,8 @@ export default function Contact() {
                           required
                           value={formData.email}
                           onChange={handleInputChange}
-                          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#1da9ff] focus:border-transparent transition-colors"
+                          disabled={isSubmitting}
+                          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#1da9ff] focus:border-transparent transition-colors disabled:bg-gray-100 disabled:cursor-not-allowed text-black disabled:text-black"
                           placeholder="your@email.com"
                         />
                       </div>
@@ -171,7 +227,8 @@ export default function Contact() {
                         required
                         value={formData.subject}
                         onChange={handleInputChange}
-                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#1da9ff] focus:border-transparent transition-colors"
+                        disabled={isSubmitting}
+                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#1da9ff] focus:border-transparent transition-colors disabled:bg-gray-100 disabled:cursor-not-allowed text-black disabled:text-black"
                       >
                         <option value="">Select a subject</option>
                         <option value="general">General Inquiry</option>
@@ -194,7 +251,8 @@ export default function Contact() {
                         rows={6}
                         value={formData.message}
                         onChange={handleInputChange}
-                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#1da9ff] focus:border-transparent transition-colors resize-vertical"
+                        disabled={isSubmitting}
+                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#1da9ff] focus:border-transparent transition-colors resize-vertical disabled:bg-gray-100 disabled:cursor-not-allowed text-black disabled:text-black"
                         placeholder="Tell us more about your inquiry..."
                       ></textarea>
                     </div>
@@ -202,7 +260,7 @@ export default function Contact() {
                     <button
                       type="submit"
                       disabled={isSubmitting}
-                      className="w-full bg-[#1da9ff] hover:bg-[#38b6ff] disabled:bg-[#bbe1f4] text-white font-semibold py-3 px-6 rounded-lg transition-colors flex items-center justify-center"
+                      className="w-full bg-[#1da9ff] hover:bg-[#38b6ff] disabled:bg-[#bbe1f4] disabled:cursor-not-allowed text-white font-semibold py-3 px-6 rounded-lg transition-colors flex items-center justify-center"
                     >
                       {isSubmitting ? (
                         <>
@@ -245,16 +303,6 @@ export default function Contact() {
                     </div>
                   </div>
                 </div>
-
-                <div className="bg-gradient-to-r from-[#1da9ff] to-[#38b6ff] rounded-2xl p-6 text-white">
-                  <h3 className="text-xl font-bold mb-4">Need Faster Support?</h3>
-                  <p className="mb-4 opacity-90">
-                    For urgent technical issues or enterprise inquiries, reach out directly.
-                  </p>
-                  <button className="bg-white text-[#1da9ff] px-4 py-2 rounded-lg font-semibold hover:bg-gray-100 transition-colors">
-                    Priority Support
-                  </button>
-                </div>
               </div>
             </div>
           )}
@@ -285,6 +333,6 @@ export default function Contact() {
           )}
         </div>
       </div>
- </Layout>
+    </Layout>
   );
 }

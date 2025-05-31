@@ -69,7 +69,7 @@ export default function Home() {
     
     const searchCount = parseInt(sessionStorage.getItem('searchCount') || '0', 10)
 
-  if (searchCount >= 4) { //1
+  if (searchCount >= 1) { //1
     setShowLimitPopup(true)
     return
   }

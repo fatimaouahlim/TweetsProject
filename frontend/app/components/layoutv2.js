@@ -1,5 +1,5 @@
 "use client";
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import AppBar from '@mui/material/AppBar';
 import Toolbar from '@mui/material/Toolbar';
 import Box from '@mui/material/Box';
@@ -8,26 +8,55 @@ import Image from 'next/image';
 import LogoutIcon from '@mui/icons-material/ExitToApp';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { History as HistoryIcon, Search as SearchIcon, Analytics as AnalyticsIcon } from '@mui/icons-material';
+import { 
+  History as HistoryIcon,
+  Email as MessagesIcon,
+  Payment as SubscribeIcon,
+  ContactMail as ContactUsIcon,
+  Info as AboutUsIcon,
+  Dashboard as AdminIcon
+} from '@mui/icons-material';
 
 export default function Layout({ children }) {
   const router = useRouter();
+  const [userRole, setUserRole] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const getUserRole = () => {
+      try {
+        const token = localStorage.getItem('token');
+        console.log('Raw token:', token);
+        if (token) {
+          const payload = JSON.parse(atob(token.split('.')[1]));
+          const role = payload.role || payload.userRole;
+          setUserRole(role);  
+          console.log('Extracted role:', role);
+        }
+      } catch (error) {
+        console.error('Error getting user role:', error);
+        setUserRole(null);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    getUserRole();
+  }, []);
 
   const handleLogout = async () => {
     try {
-      // Clear JWT token from localStorage
       localStorage.removeItem('token');
-      // Clear any other auth-related data
+      localStorage.removeItem('userRole');
       sessionStorage.clear();
-      
-      // Redirect to login page after logout
       router.push('/login');
     } catch (error) {
       console.error('Logout error:', error);
-      // Still redirect to login even if logout API call fails
       router.push('/login');
     }
   };
+
+  const isAdmin = userRole === 'admin';
 
   return (
     <Box sx={{ flexGrow: 1, minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
@@ -62,69 +91,94 @@ export default function Layout({ children }) {
               overflow: 'hidden',
               marginLeft: '0px'
             }}>
-            
+              {/* Logo image would go here */}
             </Box>
           </Box>
-          
-          <Box sx={{ 
-            display: 'flex', gap: 2 }}>
+
+          <Box sx={{ display: 'flex', gap: 2 }}>
+            {/* Admin Dashboard - Only show for admin users */}
+            {isAdmin && (
+              <Link href="/AdminInterface" passHref>
+                <Button 
+                  color="inherit" 
+                  startIcon={<AdminIcon />}
+                  sx={{
+                    color: 'white',
+                    fontWeight: 'bold',
+                    '&:hover': {
+                      backgroundColor: 'rgba(138, 204, 237, 0.69)'
+                    }
+                  }}
+                >
+                  Admin Dashboard
+                </Button>
+              </Link>
+            )}
+
             <Link href="/subscribe">
-    <Button
-      variant="text"
-      sx={{
-        color: 'white',
-        fontWeight: 'bold',
-        '&:hover': {
-          backgroundColor: 'rgba(138, 204, 237, 0.69)'
-        }
-      }}
-    >
-      SUBSCRIBE
-    </Button>
-  </Link>
-             <Link href="/History" passHref>
+              <Button
+                variant="text"
+                startIcon={<SubscribeIcon />}
+                sx={{
+                  color: 'white',
+                  fontWeight: 'bold',
+                  '&:hover': {
+                    backgroundColor: 'rgba(138, 204, 237, 0.69)'
+                  }
+                }}
+              >
+                Subscribe
+              </Button>
+            </Link>
+            
+            <Link href="/History" passHref>
               <Button 
                 color="inherit" 
                 startIcon={<HistoryIcon />}
-               sx={{
-                color: 'white',
-                fontWeight: 'bold',
-                '&:hover': {
-                  backgroundColor: 'rgba(138, 204, 237, 0.69)'
-                }
-              }}
+                sx={{
+                  color: 'white',
+                  fontWeight: 'bold',
+                  '&:hover': {
+                    backgroundColor: 'rgba(138, 204, 237, 0.69)'
+                  }
+                }}
               >
                 History
               </Button>
             </Link>
+            
             <Link href={'/contactus'}>
-            <Button
-              variant="text"
-              sx={{
-                color: 'white',
-                fontWeight: 'bold',
-                '&:hover': {
-                  backgroundColor: 'rgba(138, 204, 237, 0.69)'
-                }
-              }}
-            >
-              CONTACT US
-            </Button>
-              </Link>
-                <Link href={'/Aboutus'}>
-            <Button
-              variant="text"
-              sx={{
-                color: 'white',
-                fontWeight: 'bold',
-                '&:hover': {
-                  backgroundColor: 'rgba(138, 204, 237, 0.69)'
-                }
-              }}
-            >
-              ABOUT US
-            </Button>
-             </Link>
+              <Button
+                variant="text"
+                startIcon={<ContactUsIcon />}
+                sx={{
+                  color: 'white',
+                  fontWeight: 'bold',
+                  '&:hover': {
+                    backgroundColor: 'rgba(138, 204, 237, 0.69)'
+                  }
+                }}
+              >
+                Contact Us
+              </Button>
+            </Link>
+            
+            <Link href={'/Aboutus'}>
+              <Button
+                variant="text"
+                startIcon={<AboutUsIcon />}
+                sx={{
+                  color: 'white',
+                  fontWeight: 'bold',
+                  '&:hover': {
+                    backgroundColor: 'rgba(138, 204, 237, 0.69)'
+                  }
+                }}
+              >
+                About Us
+              </Button>
+            </Link>
+            
             <Button
               variant="text"
               startIcon={<LogoutIcon />}
@@ -137,9 +191,8 @@ export default function Layout({ children }) {
                 }
               }}
             >
-              LOGOUT
+              Logout
             </Button>
-             
           </Box>
         </Toolbar>
       </AppBar>

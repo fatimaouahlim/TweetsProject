@@ -120,10 +120,9 @@ export default function HistoryPage() {
   return (
     <Layout>
       <Container maxWidth="md" sx={{ pt: 4, pb: 4 }}>
-        <Typography variant="h4" sx={{ color: '#0099E8', fontWeight: 'bold', mb: 4 }}>
-          Search History
-        </Typography>
-
+            <h1 className="text-5xl font-bold text-gray-800 mb-4">
+               Search <span className="text-[#1da9ff]">History</span>
+            </h1>
         {error && (
           <Alert severity="error" sx={{ mb: 3 }}>
             {error}

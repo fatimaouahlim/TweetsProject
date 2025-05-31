@@ -91,29 +91,28 @@ export default function About() {
             </div>
           </div>
 
-          {/* Technology Stack */}
-          <div className="bg-white rounded-2xl shadow-xl p-8 mb-12">
-            <h2 className="text-3xl font-bold text-gray-800 mb-6 text-center">Built with Modern Technology</h2>
-            <div className="grid md:grid-cols-2 gap-8">
-              <div>
-                <h3 className="text-xl font-semibold text-gray-800 mb-4">Frontend Excellence</h3>
-                <ul className="space-y-2 text-gray-600">
-                  <li className="flex items-center"><span className="text-[#1da9ff] mr-2">✓</span> Next.js for optimal performance</li>
-                  <li className="flex items-center"><span className="text-[#1da9ff] mr-2">✓</span> React for dynamic user interfaces</li>
-                  <li className="flex items-center"><span className="text-[#1da9ff] mr-2">✓</span> Responsive design for all devices</li>
-                </ul>
-              </div>
-              <div>
-                <h3 className="text-xl font-semibold text-gray-800 mb-4">AI & Analytics</h3>
-                <ul className="space-y-2 text-gray-600">
-                  <li className="flex items-center"><span className="text-[#1da9ff] mr-2">✓</span> Advanced NLP algorithms</li>
-                  <li className="flex items-center"><span className="text-[#1da9ff] mr-2">✓</span> Real-time sentiment analysis</li>
-                  <li className="flex items-center"><span className="text-[#1da9ff] mr-2">✓</span> Intelligent content summarization</li>
-                </ul>
-              </div>
-            </div>
-          </div>
-
+       {/* Performance Highlights */}
+<div className="bg-white rounded-2xl shadow-xl p-8 mb-12">
+  <h2 className="text-3xl font-bold text-gray-800 mb-6 text-center">Lightning Fast Performance</h2>
+  <div className="grid md:grid-cols-2 gap-8">
+    <div>
+      <h3 className="text-xl font-semibold text-gray-800 mb-4">Speed Advantages</h3>
+      <ul className="space-y-2 text-gray-600">
+        <li className="flex items-center"><span className="text-[#1da9ff] mr-2">✓</span> Instant loading for seamless experience</li>
+        <li className="flex items-center"><span className="text-[#1da9ff] mr-2">✓</span> Smooth animations and transitions</li>
+        <li className="flex items-center"><span className="text-[#1da9ff] mr-2">✓</span> Optimized for all network conditions</li>
+      </ul>
+    </div>
+    <div>
+      <h3 className="text-xl font-semibold text-gray-800 mb-4">Efficiency Benefits</h3>
+      <ul className="space-y-2 text-gray-600">
+        <li className="flex items-center"><span className="text-[#1da9ff] mr-2">✓</span> Minimal wait times for results</li>
+        <li className="flex items-center"><span className="text-[#1da9ff] mr-2">✓</span> Quick response to user interactions</li>
+        <li className="flex items-center"><span className="text-[#1da9ff] mr-2">✓</span> Energy efficient operation</li>
+      </ul>
+    </div>
+  </div>
+</div>
           {/* Privacy & Security */}
           <div className="bg-gradient-to-r from-[#1da9ff] to-[#38b6ff] rounded-2xl p-8 text-white mb-12">
             <h2 className="text-3xl font-bold mb-4 text-center">Privacy & Security First</h2>

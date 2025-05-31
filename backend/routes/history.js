@@ -1,11 +1,12 @@
 // routes/history.js
+
 const express = require('express');
 const router = express.Router();
 const jwt = require('jsonwebtoken');
 const mysql = require('mysql2/promise');
 
-
-
+// Configuration - Set your desired history limit here
+const HISTORY_LIMIT = 50; // Maximum number of history items per user
 
 // Middleware to authenticate JWT token
 const authenticateToken = (req, res, next) => {
@@ -31,6 +32,38 @@ const dbConfig = {
   database: process.env.DB_NAME
 };
 
+// Function to enforce history limit
+const enforceHistoryLimit = async (connection, user_id) => {
+  try {
+    // Count current history items for this user
+    const [countResult] = await connection.execute(
+      'SELECT COUNT(*) as total FROM search_history WHERE user_id = ?',
+      [user_id]
+    );
+    
+    const currentCount = countResult[0].total;
+    
+    // If we're at or over the limit, remove the oldest entries
+    if (currentCount >= HISTORY_LIMIT) {
+      const itemsToDelete = currentCount - HISTORY_LIMIT + 1; // +1 to make room for the new entry
+      
+      // Delete the oldest entries
+      await connection.execute(
+        `DELETE FROM search_history 
+         WHERE user_id = ? 
+         ORDER BY created_at ASC 
+         LIMIT ?`,
+        [user_id, itemsToDelete]
+      );
+      
+      console.log(`Removed ${itemsToDelete} old history items for user ${user_id}`);
+    }
+  } catch (error) {
+    console.error('Error enforcing history limit:', error);
+    // Don't throw error here to avoid breaking the save operation
+  }
+};
+
 // Save search to history
 router.post('/save', authenticateToken, async (req, res) => {
   try {
@@ -38,6 +71,9 @@ router.post('/save', authenticateToken, async (req, res) => {
     const user_id = req.user.id;
 
     const connection = await mysql.createConnection(dbConfig);
+    
+    // Enforce history limit before saving new entry
+    await enforceHistoryLimit(connection, user_id);
     
     const [result] = await connection.execute(
       `INSERT INTO search_history (user_id, query, search_type, tweets_data, summary, sentiment_analysis) 
@@ -100,7 +136,8 @@ router.get('/', authenticateToken, async (req, res) => {
         current_page: page,
         total_pages: Math.ceil(countResult[0].total / limit),
         total_items: countResult[0].total,
-        items_per_page: limit
+        items_per_page: limit,
+        history_limit: HISTORY_LIMIT // Include the limit in response for frontend reference
       }
     });
   } catch (error) {
@@ -175,6 +212,5 @@ router.delete('/:id', authenticateToken, async (req, res) => {
     res.status(500).json({ message: 'Failed to delete history item' });
   }
 });
-
 
 module.exports = router;

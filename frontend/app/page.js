@@ -42,7 +42,6 @@ export default function IntegratedLogin() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitStatus, setSubmitStatus] = useState(null);
 
-
   useEffect(() => {
     console.log('Login component mounted');
     const existingToken = localStorage.getItem('token');
@@ -54,7 +53,6 @@ export default function IntegratedLogin() {
       router.push('/search');
     }
   }, [router]);
-
 
   const handleChange = (e) => {
     setFormData({
@@ -69,7 +67,6 @@ export default function IntegratedLogin() {
       [e.target.name]: e.target.value
     });
   };
-
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -104,6 +101,7 @@ export default function IntegratedLogin() {
       } else {
         console.error('No token received in response');
       }
+      
       // Store user data (adjust based on your backend response structure)
       const userData = {
         id: data.id,
@@ -131,18 +129,72 @@ export default function IntegratedLogin() {
     }
   };
 
-
   const handleContactSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
+    setSubmitStatus(null);
+    setError(''); // Clear any previous errors
+    
+    // Client-side validation (matching backend validation)
+    if (!contactForm.name || !contactForm.email || !contactForm.subject || !contactForm.message) {
+      setError('All fields are required');
+      setIsSubmitting(false);
+      setSubmitStatus('error');
+      return;
+    }
+
+    // Validate field lengths (matching backend validation)
+    if (contactForm.name.length > 255 || contactForm.email.length > 255 || contactForm.subject.length > 255) {
+      setError('Field length exceeds maximum allowed (255 characters)');
+      setIsSubmitting(false);
+      setSubmitStatus('error');
+      return;
+    }
+
+    // Validate email format (matching backend validation)
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(contactForm.email)) {
+      setError('Please enter a valid email address');
+      setIsSubmitting(false);
+      setSubmitStatus('error');
+      return;
+    }
+    
     
     try {
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      console.log('Contact form submitted:', contactForm);
+      const response = await fetch('http://localhost:5000/api/contact', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          name: contactForm.name.trim(),
+          email: contactForm.email.trim().toLowerCase(),
+          subject: contactForm.subject.trim(),
+          message: contactForm.message.trim()
+        }),
+      });
+      
+      const data = await response.json();
+      
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to send message');
+      }
+      
+      console.log('Contact form submitted successfully:', data);
       setSubmitStatus('success');
       setContactForm({ name: '', email: '', subject: '', message: '' });
+      setError(''); // Clear any errors on success
+      
+      // Optional: Show success message from backend
+      if (data.message) {
+        console.log('Backend message:', data.message);
+      }
+      
     } catch (error) {
+      console.error('Contact form submission error:', error);
       setSubmitStatus('error');
+      setError(error.message || 'Failed to send message. Please try again.');
     } finally {
       setIsSubmitting(false);
     }
@@ -545,7 +597,7 @@ export default function IntegratedLogin() {
         </Container>
       </Box>
 
-      {/* White Section - Contact Us */}
+      {/* Contact Section */}
       <Box sx={{ bgcolor: '#f8f9fa', py: 6 }}>
         <Container maxWidth="md">
           <Typography variant="h3" sx={{ mb: 4, color: '#1da9ff', fontWeight: 'bold', textAlign: 'center' }}>
@@ -559,9 +611,9 @@ export default function IntegratedLogin() {
               </Alert>
             )}
             
-            {submitStatus === 'error' && (
+            {submitStatus === 'error' && error && (
               <Alert severity="error" sx={{ mb: 3 }}>
-                Sorry, there was an error sending your message. Please try again.
+                {error}
               </Alert>
             )}
 
@@ -574,6 +626,9 @@ export default function IntegratedLogin() {
                   required
                   value={contactForm.name}
                   onChange={handleContactChange}
+                  error={submitStatus === 'error' && !contactForm.name}
+                  helperText={submitStatus === 'error' && !contactForm.name ? 'Name is required' : ''}
+                  inputProps={{ maxLength: 255 }}
                   sx={{ 
                     '& .MuiOutlinedInput-root': {
                       '& fieldset': {
@@ -594,6 +649,15 @@ export default function IntegratedLogin() {
                   required
                   value={contactForm.email}
                   onChange={handleContactChange}
+                  error={submitStatus === 'error' && (!contactForm.email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(contactForm.email))}
+                  helperText={
+                    submitStatus === 'error' && !contactForm.email 
+                      ? 'Email is required' 
+                      : submitStatus === 'error' && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(contactForm.email)
+                      ? 'Please enter a valid email address'
+                      : ''
+                  }
+                  inputProps={{ maxLength: 255 }}
                   sx={{ 
                     '& .MuiOutlinedInput-root': {
                       '& fieldset': {
@@ -610,11 +674,13 @@ export default function IntegratedLogin() {
               <TextField
                 fullWidth
                 name="subject"
-                label="Subject"
+                
                 select
                 required
                 value={contactForm.subject}
                 onChange={handleContactChange}
+                error={submitStatus === 'error' && !contactForm.subject}
+                helperText={submitStatus === 'error' && !contactForm.subject ? 'Please select a subject' : ''}
                 SelectProps={{ native: true }}
                 sx={{ 
                   mb: 3,
@@ -646,6 +712,8 @@ export default function IntegratedLogin() {
                 required
                 value={contactForm.message}
                 onChange={handleContactChange}
+                error={submitStatus === 'error' && !contactForm.message}
+                helperText={submitStatus === 'error' && !contactForm.message ? 'Message is required' : ''}
                 sx={{ 
                   mb: 4,
                   '& .MuiOutlinedInput-root': {
@@ -669,6 +737,9 @@ export default function IntegratedLogin() {
                   bgcolor: '#1da9ff',
                   '&:hover': {
                     bgcolor: '#0c8de0',
+                  },
+                  '&:disabled': {
+                    bgcolor: 'rgba(29, 169, 255, 0.3)',
                   },
                   borderRadius: 2,
                   fontSize: '1.1rem',

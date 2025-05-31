@@ -4,8 +4,9 @@ const helmet = require('helmet');
 const cookieParser = require('cookie-parser'); // Add this import
 const { corsOrigin } = require('./config');
 const authRoutes = require('./routes/authRoutes');
-const historyRoutes = require('./routes/history'); 
-
+const historyRoutes = require('./routes/history');  
+const contactRoutes = require('./routes/submitContactFormRoute'); // Fixed import
+const adminContactMessagesRoute = require('./routes/adminContactMessagesRoute');
 
 // Initialize Express app
 const app = express();
@@ -31,8 +32,9 @@ app.use(express.urlencoded({ extended: false }));
 // API routes
 app.use('/api/auth', authRoutes);
 app.use('/api/history', historyRoutes);
+app.use('/api/contact', contactRoutes);
+app.use('/api/admin/messages', adminContactMessagesRoute); 
 
-// Root route
 app.get('/', (req, res) => {
   res.json({
     success: true,

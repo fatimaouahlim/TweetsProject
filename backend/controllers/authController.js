@@ -6,10 +6,11 @@ const { comparePassword } = require('../utils/passwordUtils');
 /**
  * Generate JWT Token
  * @param {number} id - User ID
+ * @param {string} role - User Role
  * @returns {string} - JWT Token
  */
-const generateToken = (id) => {
-  return jwt.sign({ id }, jwtSecret, {
+const generateToken = (id, role) => {
+  return jwt.sign({ id, role }, jwtSecret, {
     expiresIn: jwtExpire
   });
 };
@@ -47,8 +48,8 @@ exports.register = async (req, res) => {
       password
     });
 
-    // Generate token
-    const token = generateToken(user.id);
+    // Generate token with role
+    const token = generateToken(user.id, user.role);
 
     // Return response
     return res.status(201).json({
@@ -58,6 +59,7 @@ exports.register = async (req, res) => {
         id: user.id,
         username: user.username,
         email: user.email,
+        role: user.role,
         token
       }
     });
@@ -81,7 +83,7 @@ exports.login = async (req, res) => {
 
     // Check if username is an email
     const isEmail = username.includes('@');
-    
+        
     // Find user by email or username
     let user;
     if (isEmail) {
@@ -107,22 +109,21 @@ exports.login = async (req, res) => {
       });
     }
 
-    // Generate token
-    const token = generateToken(user.id);
+    // Generate token with role
+    const token = generateToken(user.id, user.role);
 
     // Return response
-    // In your auth controller
-return res.status(200).json({
-  success: true,
-  message: 'Login successful',
-  token: token,  // Make sure this matches frontend expectation
-  user: {
-    id: user.id,
-    username: user.username,
-    email: user.email
-  }
-});
-
+    return res.status(200).json({
+      success: true,
+      message: 'Login successful',
+      token: token,
+      user: {
+        id: user.id,
+        username: user.username,
+        email: user.email,
+        role: user.role
+      }
+    });
   } catch (error) {
     console.error('Login error:', error);
     return res.status(500).json({
@@ -154,6 +155,7 @@ exports.getMe = async (req, res) => {
         id: user.id,
         username: user.username,
         email: user.email,
+        role: user.role,
         createdAt: user.created_at
       }
     });
