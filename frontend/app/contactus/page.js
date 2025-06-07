@@ -2,7 +2,7 @@
 import Head from 'next/head';
 import { useState } from 'react';
 import Layout from '../components/layout';
-
+import Link from 'next/link';
 export default function Contact() {
   const [formData, setFormData] = useState({
     name: '',
@@ -212,7 +212,7 @@ export default function Contact() {
                           onChange={handleInputChange}
                           disabled={isSubmitting}
                           className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#1da9ff] focus:border-transparent transition-colors disabled:bg-gray-100 disabled:cursor-not-allowed text-black disabled:text-black"
-                          placeholder="your@email.com"
+                          placeholder="example@gmail.com"
                         />
                       </div>
                     </div>
@@ -287,10 +287,15 @@ export default function Contact() {
                       <div className="bg-[#bbe1f4] p-2 rounded-lg mr-4">
                         <span className="text-[#1da9ff] text-xl">✉️</span>
                       </div>
-                      <div>
-                        <p className="font-medium text-gray-800">Email</p>
-                        <p className="text-gray-600">support@twanalyze.com</p>
-                      </div>
+                     <div>
+                      <p className="font-medium text-gray-800">Email</p>
+                      <Link
+                        href="mailto:twanalyze.team@gmail.com" 
+                        className="text-gray-600 hover:underline"
+                      >
+                        twanalyze.team@gmail.com
+                      </Link>
+                    </div>
                     </div>
                     <div className="flex items-center">
                       <div className="bg-[#bbe1f4] p-2 rounded-lg mr-4">

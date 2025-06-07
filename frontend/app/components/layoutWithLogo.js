@@ -10,7 +10,6 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { 
   History as HistoryIcon,
-  Email as MessagesIcon,
   Payment as SubscribeIcon,
   ContactMail as ContactUsIcon,
   Info as AboutUsIcon,

@@ -3,7 +3,7 @@ import Image from 'next/image'
 import styles from './page.module.css'
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import Layout from '../components/layoutv2'
+import Layout from '../components/layoutWithLogo'
 import Popup from '../components/Popup'
 
 export default function Home() {

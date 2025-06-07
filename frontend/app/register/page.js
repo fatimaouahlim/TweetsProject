@@ -6,7 +6,7 @@ import {
   Button, 
   Typography, 
   Container, 
-  InputAdornment, 
+  InputAdornment, //Material-UI component that allows you to add decorative elements or functional controls at the start or end of input fields.
   IconButton,
   Paper,
   Alert,
@@ -16,10 +16,12 @@ import {
   DialogContentText,
   DialogActions
 } from '@mui/material';
-import { Visibility, VisibilityOff, Email, Lock, Person } from '@mui/icons-material';
+import { Visibility, VisibilityOff, Email, Person } from '@mui/icons-material';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+
+
 
 export default function Register() {
   const router = useRouter();
@@ -77,8 +79,6 @@ export default function Register() {
         }
         throw new Error(data.message || 'Registration failed');
       }
-      
-      // Show success modal instead of redirecting
       setSuccessModalOpen(true);
       
     } catch (error) {
@@ -145,7 +145,7 @@ export default function Register() {
             flex: 1
           }}
         >
-          {/* Elon image (optional) */}
+          {/* Elon image  */}
           <Box 
             sx={{ 
               display: { xs: 'none', md: 'flex' }, 

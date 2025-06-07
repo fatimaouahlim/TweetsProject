@@ -119,6 +119,7 @@ export default function HistoryPage() {
 
   return (
     <Layout>
+         <div className="min-h-screen bg-gradient-to-br from-[#bbe1f4] to-blue-50">
       <Container maxWidth="md" sx={{ pt: 4, pb: 4 }}>
             <h1 className="text-5xl font-bold text-gray-800 mb-4">
                Search <span className="text-[#1da9ff]">History</span>
@@ -264,6 +265,7 @@ export default function HistoryPage() {
           </DialogActions>
         </Dialog>
       </Container>
+      </div>
     </Layout>
   );
 }

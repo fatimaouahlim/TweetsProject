@@ -5,11 +5,11 @@ import Typography from '@mui/material/Typography';
 import Paper from '@mui/material/Paper';
 import TextField from '@mui/material/TextField';
 
+
 export default function TweetDisplay({ inputText, setInputText, analysisResult, initialQuery }) {
   
   const handleTextChange = (event) => {
     const newValue = event.target.value;
-    
     // Make sure setInputText is a function before calling it
     if (typeof setInputText === 'function') {
       setInputText(newValue);
@@ -41,7 +41,6 @@ export default function TweetDisplay({ inputText, setInputText, analysisResult, 
       });
     } catch (error) {
       console.error('Failed to save to history:', error);
-      // Don't show error to user, as this is not critical
     }
   };
 

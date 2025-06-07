@@ -7,7 +7,9 @@ const authRoutes = require('./routes/authRoutes');
 const historyRoutes = require('./routes/history');  
 const contactRoutes = require('./routes/submitContactFormRoute'); // Fixed import
 const adminContactMessagesRoute = require('./routes/adminContactMessagesRoute');
-
+const ForgotPassword = require('./routes/forgotpassword');
+const checkoutRoute = require('./routes/create-checkout-session');
+require('dotenv').config();
 // Initialize Express app
 const app = express();
 
@@ -31,10 +33,11 @@ app.use(express.urlencoded({ extended: false }));
 
 // API routes
 app.use('/api/auth', authRoutes);
+app.use('/api/create-checkout-session', checkoutRoute); 
 app.use('/api/history', historyRoutes);
 app.use('/api/contact', contactRoutes);
 app.use('/api/admin/messages', adminContactMessagesRoute); 
-
+app.use('/api/forgot-password', ForgotPassword); 
 app.get('/', (req, res) => {
   res.json({
     success: true,

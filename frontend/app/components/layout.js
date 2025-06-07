@@ -10,9 +10,6 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { 
   History as HistoryIcon, 
-  Search as SearchIcon, 
-  Analytics as AnalyticsIcon,
-  Email as EmailIcon,
   ContactMail as ContactUsIcon,
   Info as AboutUsIcon,
   Payment as SubscribeIcon,
@@ -22,8 +19,6 @@ import {
 export default function Layout({ children }) {
   const router = useRouter();
   const [userRole, setUserRole] = useState(null);
-  const [isLoading, setIsLoading] = useState(true);
-
   useEffect(() => {
     const getUserRole = () => {
       try {
@@ -42,7 +37,6 @@ export default function Layout({ children }) {
         setIsLoading(false);
       }
     };
-
     getUserRole();
   }, []);
 

@@ -204,7 +204,9 @@ export default function ContactMessagesAdmin() {
 
   return (
     <Layout>
+                 <div className="min-h-screen bg-gradient-to-br from-[#bbe1f4] to-blue-50">
       <div className="container mx-auto p-4">
+
         <div className="text-center mb-8">
           <h1 className="text-5xl font-bold text-gray-800 mb-4">
             Contact <span className="text-[#1da9ff]">Messages</span>
@@ -522,6 +524,7 @@ export default function ContactMessagesAdmin() {
             {copySuccess === 'email' ? 'Email' : 'Phone'} copied to clipboard!
           </div>
         )}
+      </div>
       </div>
     </Layout>
   );

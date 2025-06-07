@@ -24,23 +24,30 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 
-export default function IntegratedLogin() {
+export default function Login() {
   const router = useRouter();
   const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({
     username: '',
     password: ''
-  });
+  }); //formdata object with two proprities 
+      //setFormdata used to update the state of the proprities  when u type 
   const [contactForm, setContactForm] = useState({
     name: '',
     email: '',
     subject: '',
     message: ''
   });
+  //  for store the error messages (like wrong password)
   const [error, setError] = useState('');
+  //Tracks whether data is being fetched (e.g., during initial page load or background data refresh).
   const [loading, setLoading] = useState(false);
+  // to manage form submission 
   const [isSubmitting, setIsSubmitting] = useState(false);
+  //Stores the result of a submission (success/error).
   const [submitStatus, setSubmitStatus] = useState(null);
+/*
+//react hook to manage effects to synchronize with some external system
 
   useEffect(() => {
     console.log('Login component mounted');
@@ -53,11 +60,17 @@ export default function IntegratedLogin() {
       router.push('/search');
     }
   }, [router]);
+*/
 
+
+//functions to handle form state managemnt and form submissions 
   const handleChange = (e) => {
+    // e :event object
     setFormData({
-      ...formData,
-      [e.target.name]: e.target.value
+      ...formData, //copie all existing values in the current foem 
+      [e.target.name]: e.target.value //This dynamically selects which field to update based on the input's name attribute
+    //field name dyal input 
+    
     });
   };
 
@@ -68,33 +81,33 @@ export default function IntegratedLogin() {
     });
   };
 
+  //validate data and send it to server side (backend )
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    setError('');
+    e.preventDefault(); // Prevents page reload
+    setError(''); // Clears previous errors
     setLoading(true);
     
     console.log('Login form submitted with:', formData);
-    
+    //send a Post request to the login backend endpoint 
     try {
       const response = await fetch('http://localhost:5000/api/auth/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(formData),
+        body: JSON.stringify(formData),//sends form data as json 
         credentials: 'include'
       });
       
-      console.log('Login response status:', response.status);
-      
-      const data = await response.json();
+      const data = await response.json();//convert respence data to json 
       console.log('Login response data:', data);
-      
+
       if (!response.ok) {
         throw new Error(data.message || 'Login failed');
       }
       
-      // Store token and user data
+
+      //  if login seccus store jwt token and user data
       if (data.token) {
         console.log('Storing token:', data.token);
         localStorage.setItem('token', data.token);
@@ -102,19 +115,14 @@ export default function IntegratedLogin() {
         console.error('No token received in response');
       }
       
-      // Store user data (adjust based on your backend response structure)
+      // Store user data 
       const userData = {
         id: data.id,
         username: data.username,
         email: data.email
       };
-      console.log('Storing user data:', userData);
       localStorage.setItem('user', JSON.stringify(userData));
-      
-      // Verify storage
-      console.log('Token stored:', localStorage.getItem('token'));
-      console.log('User stored:', localStorage.getItem('user'));
-      
+  
       // Small delay to ensure localStorage is updated
       setTimeout(() => {
         console.log('Redirecting to search page');
@@ -133,34 +141,7 @@ export default function IntegratedLogin() {
     e.preventDefault();
     setIsSubmitting(true);
     setSubmitStatus(null);
-    setError(''); // Clear any previous errors
-    
-    // Client-side validation (matching backend validation)
-    if (!contactForm.name || !contactForm.email || !contactForm.subject || !contactForm.message) {
-      setError('All fields are required');
-      setIsSubmitting(false);
-      setSubmitStatus('error');
-      return;
-    }
-
-    // Validate field lengths (matching backend validation)
-    if (contactForm.name.length > 255 || contactForm.email.length > 255 || contactForm.subject.length > 255) {
-      setError('Field length exceeds maximum allowed (255 characters)');
-      setIsSubmitting(false);
-      setSubmitStatus('error');
-      return;
-    }
-
-    // Validate email format (matching backend validation)
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(contactForm.email)) {
-      setError('Please enter a valid email address');
-      setIsSubmitting(false);
-      setSubmitStatus('error');
-      return;
-    }
-    
-    
+    setError(''); 
     try {
       const response = await fetch('http://localhost:5000/api/contact', {
         method: 'POST',
@@ -168,6 +149,7 @@ export default function IntegratedLogin() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
+          //Cleans up data with .trim() (removes whitespace)
           name: contactForm.name.trim(),
           email: contactForm.email.trim().toLowerCase(),
           subject: contactForm.subject.trim(),
@@ -176,7 +158,7 @@ export default function IntegratedLogin() {
       });
       
       const data = await response.json();
-      
+
       if (!response.ok) {
         throw new Error(data.error || 'Failed to send message');
       }
@@ -185,12 +167,7 @@ export default function IntegratedLogin() {
       setSubmitStatus('success');
       setContactForm({ name: '', email: '', subject: '', message: '' });
       setError(''); // Clear any errors on success
-      
-      // Optional: Show success message from backend
-      if (data.message) {
-        console.log('Backend message:', data.message);
-      }
-      
+   
     } catch (error) {
       console.error('Contact form submission error:', error);
       setSubmitStatus('error');
@@ -203,7 +180,7 @@ export default function IntegratedLogin() {
   const handleClickShowPassword = () => {
     setShowPassword(!showPassword);
   };
-
+//array
   const features = [
     {
       title: "Tweet Collection",
@@ -237,7 +214,12 @@ export default function IntegratedLogin() {
     }
   ];
 
-  return (
+
+
+
+
+  return (  
+             //"viewport height"   //background color 
     <Box sx={{ minHeight: '100vh', bgcolor: '#1da9ff' }}>
       {/* Blue Section with Login */}
       <Container 
@@ -260,6 +242,10 @@ export default function IntegratedLogin() {
             padding: 4
           }}
         >
+
+
+
+        
           {/* Top - Twanalyze Logo */}
           <Box sx={{ 
             display: 'flex',
@@ -294,7 +280,10 @@ export default function IntegratedLogin() {
             </Box>
           </Box>
 
-          {/* Middle section - Tweet and Login Form side by side */}
+
+
+
+          {/* Middle section */}
           <Box 
             sx={{ 
               display: 'flex', 
@@ -306,7 +295,7 @@ export default function IntegratedLogin() {
               flex: 1
             }}
           >
-            {/* Left side - Elonmasktweet image */}
+            {/* Elonmasktweet image */}
             <Box 
               sx={{ 
                 display: { xs: 'none', md: 'flex' }, 
@@ -351,6 +340,7 @@ export default function IntegratedLogin() {
 
             {/* Right side - Login Form Only */}
             <Paper
+            //is a prop used in Material-UI (a popular React UI framework) to apply shadow effects to components, particularly to Paper, Card, and other surface elements.
               elevation={4}
               sx={{
                 p: 0,
@@ -418,7 +408,7 @@ export default function IntegratedLogin() {
                         },
                       },
                     }}
-                    InputProps={{
+                    IconButtonnputProps={{
                       endAdornment: (
                         <InputAdornment position="end">
                           <Email sx={{ color: '#1da9ff' }} />
@@ -487,6 +477,26 @@ export default function IntegratedLogin() {
                   >
                     {loading ? 'Logging in...' : 'Login'}
                   </Button>
+                    {/* FORGOT PASSWORD LINK */}
+                  <Box sx={{ textAlign: 'center', mb: 2 }}>
+                    <Link href="/forgot-password" passHref>
+                      <Typography 
+                        component="span" 
+                        sx={{ 
+                          color: '#1da9ff', 
+                          fontWeight: 'medium',
+                          textDecoration: 'underline',
+                          cursor: 'pointer',
+                          fontSize: '0.9rem',
+                          '&:hover': {
+                            color: '#0c8de0'
+                          }
+                        }}
+                      >
+                        Forgot your password?
+                      </Typography>
+                    </Link>
+                  </Box>
                   
                   <Box sx={{ textAlign: 'center' }}>
                     <Typography variant="body2" color="text.secondary" sx={{ fontWeight: 'medium' }}>
@@ -698,7 +708,6 @@ export default function IntegratedLogin() {
                 <option value="general">General Inquiry</option>
                 <option value="bug">Bug Report</option>
                 <option value="feature">Feature Request</option>
-                <option value="business">Business/Enterprise Inquiry</option>
                 <option value="api">API Access</option>
                 <option value="support">Technical Support</option>
               </TextField>
